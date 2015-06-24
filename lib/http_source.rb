@@ -1,0 +1,2 @@
+class HttpSource
+end

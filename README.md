@@ -1,4 +1,4 @@
-#Play Analayzer
+#Play Analyzer
 
 This application allows to scrap a list of plays and their url's where the user
 can find out a xml about the play.
