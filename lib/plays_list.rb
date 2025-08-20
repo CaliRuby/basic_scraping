@@ -6,7 +6,7 @@ class PlaysList
     @url = "http://www.ibiblio.org/xml/examples/shakespeare/"
   end
   def get
-    response = open(@url)
+    response = URI.open(@url)
     @html    = Nokogiri::HTML(response.read)
     self
   end

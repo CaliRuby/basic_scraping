@@ -1,0 +1,179 @@
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Shakespeare Play Analyzer Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4><%= @total_plays %></h4>
+                        <p class="mb-0">Total Plays</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 id="analyzedCount">0</h4>
+                        <p class="mb-0">Analyzed Plays</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 id="totalCharacters">-</h4>
+                        <p class="mb-0">Total Characters</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 id="totalLines">-</h4>
+                        <p class="mb-0">Total Lines</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-text fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Available Shakespeare Plays
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Play Title</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% @plays.each_with_index do |(url, name), index| %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= name %></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="/characters/<%= index %>" class="btn btn-outline-primary">
+                                                <i class="fas fa-users me-1"></i>Characters
+                                            </a>
+                                            <a href="/words/<%= index %>" class="btn btn-outline-info">
+                                                <i class="fas fa-font me-1"></i>Words
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% end %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-rocket me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="showPlaySelector('characters')">
+                        <i class="fas fa-users me-2"></i>
+                        Analyze Characters
+                    </button>
+                    <button class="btn btn-info" onclick="showPlaySelector('words')">
+                        <i class="fas fa-font me-2"></i>
+                        Word Analysis
+                    </button>
+                    <a href="/comparison" class="btn btn-warning">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Compare Plays
+                    </a>
+                    <a href="/reports" class="btn btn-success">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Generate Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    About
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    This application analyzes Shakespeare's plays, providing insights into:
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>Character analysis</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Word frequency</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Play comparisons</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Statistical reports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update dashboard statistics
+document.addEventListener('DOMContentLoaded', function() {
+    // This would be populated by actual analysis data
+    // For demo purposes, showing placeholder values
+    setTimeout(() => {
+        document.getElementById('analyzedCount').textContent = '3';
+        document.getElementById('totalCharacters').textContent = '150+';
+        document.getElementById('totalLines').textContent = '25,000+';
+    }, 1000);
+});
+</script>
