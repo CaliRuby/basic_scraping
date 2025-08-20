@@ -1,0 +1,217 @@
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="hero-section py-5">
+            <i class="fas fa-theater-masks fa-5x text-primary mb-4"></i>
+            <h1 class="display-4 mb-4">Shakespeare Play Analyzer</h1>
+            <p class="lead mb-4">
+                Explore the depths of Shakespeare's works through comprehensive character analysis, 
+                word frequency studies, and detailed play comparisons.
+            </p>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Get Started</h5>
+                            <p class="card-text">Choose from <%= @plays.length %> Shakespeare plays to begin your analysis</p>
+                            <a href="/dashboard" class="btn btn-primary btn-lg">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Character Analysis</h5>
+                <p class="card-text">
+                    Analyze character roles, dialogue distribution, and speaking patterns across all plays.
+                </p>
+                <button class="btn btn-outline-primary" onclick="showPlaySelector('characters')">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Start Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-font fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Word Frequency</h5>
+                <p class="card-text">
+                    Discover the most frequently used words by characters and analyze vocabulary patterns.
+                </p>
+                <button class="btn btn-outline-success" onclick="showPlaySelector('words')">
+                    <i class="fas fa-list-ol me-1"></i>
+                    Analyze Words
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-balance-scale fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Play Comparison</h5>
+                <p class="card-text">
+                    Compare different plays side by side to understand structural and thematic differences.
+                </p>
+                <a href="/comparison" class="btn btn-outline-info">
+                    <i class="fas fa-columns me-1"></i>
+                    Compare Plays
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-book me-2"></i>
+                    Available Shakespeare Plays
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <% @plays.each_with_index do |(url, name), index| %>
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title"><%= name %></h6>
+                                    <div class="btn-group btn-group-sm w-100" role="group">
+                                        <a href="/characters/<%= index %>" class="btn btn-outline-primary">
+                                            <i class="fas fa-users me-1"></i>Characters
+                                        </a>
+                                        <a href="/words/<%= index %>" class="btn btn-outline-success">
+                                            <i class="fas fa-font me-1"></i>Words
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Character Analysis:</strong> Detailed character statistics and rankings
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Word Frequency:</strong> Comprehensive vocabulary analysis
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Play Comparison:</strong> Side-by-side play analysis
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Interactive Charts:</strong> Visual data representation
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Export Options:</strong> Download analysis results
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Detailed Reports:</strong> Comprehensive analysis reports
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    About This Tool
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    This Shakespeare Play Analyzer provides comprehensive analysis tools for exploring 
+                    the complete works of William Shakespeare. The application processes XML versions 
+                    of the plays to extract detailed information about:
+                </p>
+                <ul>
+                    <li>Character dialogue distribution</li>
+                    <li>Word frequency and vocabulary usage</li>
+                    <li>Statistical comparisons between plays</li>
+                    <li>Linguistic patterns and trends</li>
+                </ul>
+                <p class="mb-0">
+                    All data is sourced from publicly available XML versions of Shakespeare's plays, 
+                    ensuring accuracy and completeness in the analysis.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.hero-section .card {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.fa-theater-masks {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+</style>

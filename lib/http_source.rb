@@ -8,7 +8,7 @@ class HttpSource
   end
 
   def source
-    response = open(@url)
+    response = URI.open(@url)
     @xml     = Nokogiri::XML(response.read)
   end
 

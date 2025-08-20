@@ -1,0 +1,283 @@
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Character Analysis</li>
+            </ol>
+        </nav>
+        
+        <h1 class="mb-4">
+            <i class="fas fa-users me-2"></i>
+            Character Analysis: <%= @play_name %>
+        </h1>
+    </div>
+</div>
+
+<% if @analysis && !@analysis[:error] %>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3><%= @analysis[:total_characters] %></h3>
+                    <p class="mb-0">Total Characters</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3><%= @analysis[:total_lines] %></h3>
+                    <p class="mb-0">Total Lines</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3><%= @analysis[:characters_lines].first[1] if @analysis[:characters_lines].any? %></h3>
+                    <p class="mb-0">Most Lines</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3><%= (@analysis[:total_lines].to_f / @analysis[:total_characters]).round %></h3>
+                    <p class="mb-0">Avg Lines/Character</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Characters by Lines Spoken
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="charactersChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Character Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Character</th>
+                                    <th>Lines Spoken</th>
+                                    <th>Percentage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% @analysis[:characters_lines].each_with_index do |(character, lines), index| %>
+                                    <tr>
+                                        <td><%= index + 1 %></td>
+                                        <td><strong><%= character %></strong></td>
+                                        <td><%= lines %></td>
+                                        <td><%= ((lines.to_f / @analysis[:total_lines]) * 100).round(1) %>%</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    onclick="showCharacterWords('<%= character %>')">
+                                                <i class="fas fa-font me-1"></i>Words
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% end %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-crown me-2"></i>
+                        Top Characters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% @analysis[:characters_lines].first(5).each_with_index do |(character, lines), index| %>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1"><%= character %></h6>
+                                <small class="text-muted"><%= lines %> lines</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">#<%= index + 1 %></span>
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: <%= ((lines.to_f / @analysis[:characters_lines].first[1]) * 100).round %>%">
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Analysis Tools
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="exportCharacterData()">
+                            <i class="fas fa-download me-2"></i>
+                            Export Data
+                        </button>
+                        <a href="/comparison" class="btn btn-outline-info">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Compare with Other Play
+                        </a>
+                        <button class="btn btn-outline-success" onclick="generateCharacterReport()">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<% elsif @analysis && @analysis[:error] %>
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Analysis Error</h4>
+        <p>There was an error analyzing this play: <%= @analysis[:error] %></p>
+        <hr>
+        <p class="mb-0">Please try again or select a different play.</p>
+    </div>
+<% else %>
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading character analysis...</p>
+    </div>
+<% end %>
+
+<!-- Character Words Modal -->
+<div class="modal fade" id="characterWordsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Character Word Analysis</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="characterWordsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+<% if @analysis && !@analysis[:error] %>
+// Create characters chart
+const ctx = document.getElementById('charactersChart').getContext('2d');
+const charactersChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [<%= @analysis[:characters_lines].first(10).map { |char, _| "'#{char}'" }.join(', ') %>],
+        datasets: [{
+            label: 'Lines Spoken',
+            data: [<%= @analysis[:characters_lines].first(10).map { |_, lines| lines }.join(', ') %>],
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Character words functionality
+function showCharacterWords(character) {
+    const modal = new bootstrap.Modal(document.getElementById('characterWordsModal'));
+    modal.show();
+    
+    // Load character words via AJAX
+    fetch(`/api/character_words/<%= @plays.index([@play_url, @play_name]) %>/${encodeURIComponent(character)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('characterWordsContent').innerHTML = 
+                    `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+                let html = `<h6>Most frequent words used by ${data.character}:</h6><div class="row">`;
+                data.words.forEach(([word, count], index) => {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>${word}</span>
+                                <span class="badge bg-primary">${count}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                document.getElementById('characterWordsContent').innerHTML = html;
+            }
+        })
+        .catch(error => {
+            document.getElementById('characterWordsContent').innerHTML = 
+                `<div class="alert alert-danger">Error loading character words: ${error.message}</div>`;
+        });
+}
+
+// Export functionality
+function exportCharacterData() {
+    const data = {
+        play: '<%= @play_name %>',
+        analysis: <%= @analysis.to_json %>
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '<%= @play_name.gsub(/[^a-zA-Z0-9]/, '_') %>_character_analysis.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Generate report functionality
+function generateCharacterReport() {
+    alert('Report generation feature will be implemented in the Reports tab!');
+}
+<% end %>
+</script>

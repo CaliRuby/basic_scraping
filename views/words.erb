@@ -1,0 +1,394 @@
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Word Analysis</li>
+            </ol>
+        </nav>
+        
+        <h1 class="mb-4">
+            <i class="fas fa-font me-2"></i>
+            Word Analysis: <%= @play_name %>
+        </h1>
+    </div>
+</div>
+
+<% if @analysis && !@analysis[:error] %>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Character Selection
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="characterSelect" class="form-label">Select Character:</label>
+                            <select class="form-select" id="characterSelect" onchange="loadCharacterWords()">
+                                <option value="">Choose a character...</option>
+                                <% @analysis[:characters_lines].each do |character, lines| %>
+                                    <option value="<%= character %>"><%= character %> (<%= lines %> lines)</option>
+                                <% end %>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="wordLimit" class="form-label">Number of words to show:</label>
+                            <select class="form-select" id="wordLimit" onchange="loadCharacterWords()">
+                                <option value="10">Top 10</option>
+                                <option value="20" selected>Top 20</option>
+                                <option value="50">Top 50</option>
+                                <option value="100">Top 100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Word Frequency Chart
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="wordsChart" width="400" height="200"></canvas>
+                    <div id="noDataMessage" class="text-center text-muted" style="display: none;">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <p>Select a character to view their word frequency analysis</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Word Frequency Table
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="wordsTableContainer">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-arrow-up fa-2x mb-3"></i>
+                            <p>Select a character above to see their word usage</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Character Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="characterInfo">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-user fa-3x mb-3"></i>
+                            <p>Select a character to view their information</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-crown me-2"></i>
+                        Top Characters by Word Usage
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% @analysis[:word_analysis].each_with_index do |(character, words), index| %>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-1"><%= character %></h6>
+                                <span class="badge bg-primary">#<%= index + 1 %></span>
+                            </div>
+                            <small class="text-muted">
+                                Most used: "<%= words.first[0] if words.any? %>" (<%= words.first[1] if words.any? %> times)
+                            </small>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="selectCharacter('<%= character %>')">
+                                    <i class="fas fa-eye me-1"></i>View Words
+                                </button>
+                            </div>
+                        </div>
+                        <hr>
+                    <% end %>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Analysis Tools
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="exportWordData()" id="exportBtn" disabled>
+                            <i class="fas fa-download me-2"></i>
+                            Export Word Data
+                        </button>
+                        <button class="btn btn-outline-info" onclick="compareWords()" id="compareBtn" disabled>
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Compare Characters
+                        </button>
+                        <button class="btn btn-outline-success" onclick="generateWordReport()" id="reportBtn" disabled>
+                            <i class="fas fa-file-alt me-2"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<% elsif @analysis && @analysis[:error] %>
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Analysis Error</h4>
+        <p>There was an error analyzing this play: <%= @analysis[:error] %></p>
+        <hr>
+        <p class="mb-0">Please try again or select a different play.</p>
+    </div>
+<% else %>
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading word analysis...</p>
+    </div>
+<% end %>
+
+<script>
+<% if @analysis && !@analysis[:error] %>
+let wordsChart = null;
+let currentCharacterData = null;
+
+// Load character words
+function loadCharacterWords() {
+    const character = document.getElementById('characterSelect').value;
+    const limit = document.getElementById('wordLimit').value;
+    
+    if (!character) {
+        showNoDataMessage();
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('wordsTableContainer').innerHTML = 
+        '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+    
+    // Load character words via AJAX
+    fetch(`/api/character_words/<%= @plays.index([@play_url, @play_name]) %>/${encodeURIComponent(character)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('wordsTableContainer').innerHTML = 
+                    `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+                currentCharacterData = data;
+                displayWordData(data, parseInt(limit));
+                updateCharacterInfo(character, data);
+                enableButtons();
+            }
+        })
+        .catch(error => {
+            document.getElementById('wordsTableContainer').innerHTML = 
+                `<div class="alert alert-danger">Error loading character words: ${error.message}</div>`;
+        });
+}
+
+// Display word data
+function displayWordData(data, limit) {
+    const words = data.words.slice(0, limit);
+    
+    // Update chart
+    updateWordsChart(words);
+    
+    // Update table
+    let tableHtml = `
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Word</th>
+                        <th>Frequency</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    const totalWords = words.reduce((sum, [_, count]) => sum + count, 0);
+    
+    words.forEach(([word, count], index) => {
+        const percentage = ((count / totalWords) * 100).toFixed(1);
+        tableHtml += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${word}</strong></td>
+                <td>${count}</td>
+                <td>${percentage}%</td>
+            </tr>
+        `;
+    });
+    
+    tableHtml += '</tbody></table></div>';
+    document.getElementById('wordsTableContainer').innerHTML = tableHtml;
+}
+
+// Update words chart
+function updateWordsChart(words) {
+    const ctx = document.getElementById('wordsChart').getContext('2d');
+    
+    if (wordsChart) {
+        wordsChart.destroy();
+    }
+    
+    const topWords = words.slice(0, 15);
+    
+    wordsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: topWords.map(([word, _]) => word),
+            datasets: [{
+                data: topWords.map(([_, count]) => count),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                    '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
+                    '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    document.getElementById('noDataMessage').style.display = 'none';
+}
+
+// Show no data message
+function showNoDataMessage() {
+    if (wordsChart) {
+        wordsChart.destroy();
+        wordsChart = null;
+    }
+    document.getElementById('noDataMessage').style.display = 'block';
+    document.getElementById('wordsTableContainer').innerHTML = 
+        '<div class="text-center text-muted"><p>Select a character to see their word usage</p></div>';
+    document.getElementById('characterInfo').innerHTML = 
+        '<div class="text-center text-muted"><i class="fas fa-user fa-3x mb-3"></i><p>Select a character to view their information</p></div>';
+    disableButtons();
+}
+
+// Update character info
+function updateCharacterInfo(character, data) {
+    const characterLines = <%= @analysis[:characters_lines].to_json %>;
+    const charData = characterLines.find(([name, _]) => name === character);
+    const lines = charData ? charData[1] : 0;
+    const totalWords = data.words.reduce((sum, [_, count]) => sum + count, 0);
+    
+    const infoHtml = `
+        <h6>${character}</h6>
+        <hr>
+        <div class="mb-2">
+            <small class="text-muted">Lines spoken:</small>
+            <div><strong>${lines}</strong></div>
+        </div>
+        <div class="mb-2">
+            <small class="text-muted">Total words:</small>
+            <div><strong>${totalWords}</strong></div>
+        </div>
+        <div class="mb-2">
+            <small class="text-muted">Unique words:</small>
+            <div><strong>${data.words.length}</strong></div>
+        </div>
+        <div class="mb-2">
+            <small class="text-muted">Most used word:</small>
+            <div><strong>"${data.words[0][0]}"</strong> (${data.words[0][1]} times)</div>
+        </div>
+    `;
+    
+    document.getElementById('characterInfo').innerHTML = infoHtml;
+}
+
+// Select character from sidebar
+function selectCharacter(character) {
+    document.getElementById('characterSelect').value = character;
+    loadCharacterWords();
+}
+
+// Enable/disable buttons
+function enableButtons() {
+    document.getElementById('exportBtn').disabled = false;
+    document.getElementById('compareBtn').disabled = false;
+    document.getElementById('reportBtn').disabled = false;
+}
+
+function disableButtons() {
+    document.getElementById('exportBtn').disabled = true;
+    document.getElementById('compareBtn').disabled = true;
+    document.getElementById('reportBtn').disabled = true;
+}
+
+// Export functionality
+function exportWordData() {
+    if (!currentCharacterData) return;
+    
+    const data = {
+        play: '<%= @play_name %>',
+        character: currentCharacterData.character,
+        words: currentCharacterData.words
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${data.character}_word_analysis.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Compare words functionality
+function compareWords() {
+    alert('Character comparison feature will be implemented in the Comparison tab!');
+}
+
+// Generate report functionality
+function generateWordReport() {
+    alert('Word report generation feature will be implemented in the Reports tab!');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    showNoDataMessage();
+});
+<% end %>
+</script>
